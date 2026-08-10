@@ -9,7 +9,7 @@ const user_enum_1 = require("../common/enum/user.enum");
 const UserSchema = new mongoose_1.default.Schema({
     id: {
         type: String,
-        required: true,
+        required: false,
         unique: true,
     },
     name: {
@@ -24,6 +24,13 @@ const UserSchema = new mongoose_1.default.Schema({
     password: {
         type: String,
         required: true,
+    },
+    confirmPassword: {
+        type: String,
+        required: false,
+    },
+    otp: {
+        type: String,
     },
     role: {
         type: String,

@@ -6,6 +6,7 @@ import helmet from "helmet";
 import { env } from "./config/env.service";
 import { connectDB } from "./database/mongo.connection";
 import { globalErrorHandler } from "./middleware/globalErrorHandler.middleware";
+import authRouter from "./module/auth/auth.controller";
 
 export const bootstrap = async () => {
   const app: Express = express();
@@ -29,6 +30,7 @@ export const bootstrap = async () => {
   app.use(helmet());
   connectDB();
 
+  app.use("/auth", authRouter);
 
   app.use(globalErrorHandler);
 

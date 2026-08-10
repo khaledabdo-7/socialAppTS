@@ -10,6 +10,8 @@ const express_rate_limit_1 = require("express-rate-limit");
 const helmet_1 = __importDefault(require("helmet"));
 const env_service_1 = require("./config/env.service");
 const mongo_connection_1 = require("./database/mongo.connection");
+const globalErrorHandler_middleware_1 = require("./middleware/globalErrorHandler.middleware");
+const auth_controller_1 = __importDefault(require("./module/auth/auth.controller"));
 const bootstrap = async () => {
     const app = (0, express_1.default)();
     const port = env_service_1.env.PORT;
@@ -26,6 +28,8 @@ const bootstrap = async () => {
     app.use(limiter);
     app.use((0, helmet_1.default)());
     (0, mongo_connection_1.connectDB)();
+    app.use("/auth", auth_controller_1.default);
+    app.use(globalErrorHandler_middleware_1.globalErrorHandler);
     app.listen(port, () => {
         console.log(`Server is running in port ${port}`);
     });
