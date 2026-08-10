@@ -5,6 +5,7 @@ import { rateLimit } from "express-rate-limit";
 import helmet from "helmet";
 import { env } from "./config/env.service";
 import { connectDB } from "./database/mongo.connection";
+import { globalErrorHandler } from "./middleware/globalErrorHandler.middleware";
 
 export const bootstrap = async () => {
   const app: Express = express();
@@ -27,6 +28,9 @@ export const bootstrap = async () => {
   app.use(limiter);
   app.use(helmet());
   connectDB();
+
+
+  app.use(globalErrorHandler);
 
   app.listen(port, () => {
     console.log(`Server is running in port ${port}`);

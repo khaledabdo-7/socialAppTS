@@ -10,3 +10,4 @@ export interface IComment {
   mentions?: Types.ObjectId[] | IUser[];
   imageUrl?: string[];
 }
+
