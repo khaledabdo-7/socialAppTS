@@ -13,6 +13,7 @@ import { v4 as uuidv4 } from "uuid";
 import { IAuthResponse } from "../../../common/interface/auth.interface";
 import bcrypt from "bcrypt";
 import sendEmail from "../../../common/utils/sendEmail";
+import crypto from "crypto";
 
 class AuthService {
   async login(email: string, password: string): Promise<IAuthResponse> {
@@ -60,8 +61,8 @@ class AuthService {
     }
 
     const hashedPassword = await bcrypt.hash(password, Number(env.SALT));
-    const createOtp = Math.floor(100000 + Math.random() * 900000);
-    const hashedOtp = await bcrypt.hash(createOtp.toString(), Number(env.SALT));
+    const createOtp = crypto.randomInt(100000, 999999).toString();
+    const hashedOtp = await bcrypt.hash(createOtp, Number(env.SALT));
     const html = `
   <div style="font-family: Arial, sans-serif; padding: 20px;">
     <h2>Welcome to Social App!</h2>
@@ -83,5 +84,41 @@ class AuthService {
     await newUser.save();
     return newUser;
   }
-}
+
+  async verifyOtp(email: string, otp: string): Promise<boolean> {
+    const user = await User.findOne({ email });
+    if (!user) {
+      throw new NotFoundError("User not found");
+    }
+    const isMatch = await compare(otp, user.otp||"");
+    if (!isMatch) {
+      throw new UnauthorizedError("Invalid OTP");
+    }
+    user.isVerified = true;
+    delete user.otp;
+    await user.save();
+    return true;
+  }
+
+  async resendOtp(email: string): Promise<void> {
+    const user = await User.findOne({ email });
+    if (!user) {
+      throw new NotFoundError("User not found");
+    }
+    const createOtp = crypto.randomInt(100000, 999999).toString();
+    const hashedOtp = await bcrypt.hash(createOtp, Number(env.SALT));
+    const html = `
+  <div style="font-family: Arial, sans-serif; padding: 20px;">
+    <h2>Welcome to Social App!</h2>
+    <p>Please use the following OTP to verify your account:</p>
+    <h1 style="color: #4CAF50;">${createOtp}</h1>
+    <p>This code is valid for 10 minutes.</p>
+  </div>
+`;
+    await sendEmail(email, "Verify your email", html);
+    user.otp = hashedOtp;
+    await user.save();
+  }
+  }   
+
 export default new AuthService();
