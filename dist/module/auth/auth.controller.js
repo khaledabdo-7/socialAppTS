@@ -26,4 +26,24 @@ authRouter.post("/login", async (req, res, next) => {
         next(error);
     }
 });
+authRouter.post("/verifyOtp", async (req, res, next) => {
+    try {
+        const { email, otp } = req.body;
+        const isVerified = await auth_service_1.default.verifyOtp(email, otp);
+        res.status(200).json(isVerified);
+    }
+    catch (error) {
+        next(error);
+    }
+});
+authRouter.post("/resendOtp", async (req, res, next) => {
+    try {
+        const { email } = req.body;
+        await auth_service_1.default.resendOtp(email);
+        res.status(200).json({ message: "OTP sent successfully" });
+    }
+    catch (error) {
+        next(error);
+    }
+});
 exports.default = authRouter;

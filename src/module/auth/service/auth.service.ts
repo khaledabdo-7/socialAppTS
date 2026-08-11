@@ -14,6 +14,7 @@ import { IAuthResponse } from "../../../common/interface/auth.interface";
 import bcrypt from "bcrypt";
 import sendEmail from "../../../common/utils/sendEmail";
 import crypto from "crypto";
+import { redisClient } from "../../../database/redis.connection";
 
 class AuthService {
   async login(email: string, password: string): Promise<IAuthResponse> {
@@ -71,10 +72,12 @@ class AuthService {
     <p>This code is valid for 10 minutes.</p>
   </div>
 `;
+
+    await redisClient.set(`otp:${email}`, hashedOtp, { EX: 600 });
+
     await sendEmail(email, "Verify your email", html);
     const newUser = new User({
       email,
-      otp: hashedOtp,
       password: hashedPassword,
       name,
       gender,
@@ -90,12 +93,19 @@ class AuthService {
     if (!user) {
       throw new NotFoundError("User not found");
     }
-    const isMatch = await compare(otp, user.otp||"");
+
+    const storedHashedOtp = await redisClient.get(`otp:${email}`);
+    if (!storedHashedOtp) {
+      throw new NotFoundError("OTP not found");
+    }
+    const isMatch = await compare(otp, storedHashedOtp);
     if (!isMatch) {
       throw new UnauthorizedError("Invalid OTP");
     }
+
+    await redisClient.del(`otp:${email}`);
+
     user.isVerified = true;
-    delete user.otp;
     await user.save();
     return true;
   }
@@ -105,20 +115,33 @@ class AuthService {
     if (!user) {
       throw new NotFoundError("User not found");
     }
+
+    if (user.isVerified) {
+      throw new BadRequestError("User already verified");
+    }
+    const coolDown = await redisClient.get(`otp_coolDown:${email}`);
+    if (coolDown) {
+      throw new BadRequestError("Please wait before requesting a new OTP");
+    }
+
     const createOtp = crypto.randomInt(100000, 999999).toString();
     const hashedOtp = await bcrypt.hash(createOtp, Number(env.SALT));
     const html = `
-  <div style="font-family: Arial, sans-serif; padding: 20px;">
+    <div style="font-family: Arial, sans-serif; padding: 20px;">
     <h2>Welcome to Social App!</h2>
     <p>Please use the following OTP to verify your account:</p>
     <h1 style="color: #4CAF50;">${createOtp}</h1>
     <p>This code is valid for 10 minutes.</p>
-  </div>
-`;
+    </div>
+    `;
     await sendEmail(email, "Verify your email", html);
-    user.otp = hashedOtp;
-    await user.save();
+    await redisClient.set(`otp:${email}`, hashedOtp, { EX: 600 });
+    await redisClient.set(`otp_coolDown:${email}`, Date.now(), {
+      EX: 60,
+    });
   }
-  }   
+
+  
+}
 
 export default new AuthService();

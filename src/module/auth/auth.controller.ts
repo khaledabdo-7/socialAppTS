@@ -46,6 +46,30 @@ authRouter.post(
     }
   },)
 
+authRouter.post(
+  "/verifyOtp",
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { email, otp } = req.body;
+      const isVerified = await AuthService.verifyOtp(email, otp);
+      res.status(200).json(isVerified);
+    } catch (error: Error | any) {
+      next(error);
+    }
+  },
+); 
 
+authRouter.post(
+  "/resendOtp",
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { email } = req.body;
+      await AuthService.resendOtp(email);
+      res.status(200).json({ message: "OTP sent successfully" });
+    } catch (error: Error | any) {
+      next(error);
+    }
+  },
+);
 
   export default authRouter;
