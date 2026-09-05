@@ -9,6 +9,7 @@ import { globalErrorHandler } from "./middleware/globalErrorHandler.middleware";
 import authRouter from "./module/auth/auth.controller";
 import { redisConnection } from "./database/redis.connection";
 import rateLimiter from "./middleware/rateLimit.middleware";
+import postRouter from "./module/post/post.controller";
 
 export const bootstrap = async () => {
   const app: Express = express();
@@ -28,7 +29,7 @@ export const bootstrap = async () => {
   await redisConnection();
 
   app.use("/auth", authRouter);
-
+  app.use("/post", postRouter);
   app.use(globalErrorHandler);
 
   app.listen(port, () => {

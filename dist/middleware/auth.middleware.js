@@ -3,11 +3,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.authorization = exports.authMiddleware = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const env_service_1 = require("../config/env.service");
 const error_response_1 = require("../common/response/error.response");
 const redis_connection_1 = require("../database/redis.connection");
-const user_model_1 = require("../model/user.model");
+const user_model_1 = require("../database/model/user.model");
 const error_response_2 = require("../common/response/error.response");
 const authMiddleware = () => {
     return async (req, res, next) => {
@@ -33,7 +34,27 @@ const authMiddleware = () => {
             next();
         }
         catch (error) {
-            throw new error_response_2.InternalServerError("Internal server error");
+            console.error("Error in authMiddleware:", error);
+            throw new error_response_2.BadRequestError("Something went wrong");
         }
     };
 };
+exports.authMiddleware = authMiddleware;
+const authorization = (allowedRoles) => {
+    return async (req, res, next) => {
+        try {
+            const role = req.user.role;
+            if (!role) {
+                throw new error_response_1.UnauthorizedError("Please login First");
+            }
+            if (!allowedRoles.includes(role)) {
+                throw new error_response_1.UnauthorizedError("Unauthorized");
+            }
+            next();
+        }
+        catch (error) {
+            throw new error_response_2.BadRequestError("Something went wrong");
+        }
+    };
+};
+exports.authorization = authorization;

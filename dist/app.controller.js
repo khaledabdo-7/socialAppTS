@@ -13,6 +13,7 @@ const globalErrorHandler_middleware_1 = require("./middleware/globalErrorHandler
 const auth_controller_1 = __importDefault(require("./module/auth/auth.controller"));
 const redis_connection_1 = require("./database/redis.connection");
 const rateLimit_middleware_1 = __importDefault(require("./middleware/rateLimit.middleware"));
+const post_controller_1 = __importDefault(require("./module/post/post.controller"));
 const bootstrap = async () => {
     const app = (0, express_1.default)();
     const port = env_service_1.env.PORT;
@@ -26,6 +27,7 @@ const bootstrap = async () => {
     await (0, mongo_connection_1.connectDB)();
     await (0, redis_connection_1.redisConnection)();
     app.use("/auth", auth_controller_1.default);
+    app.use("/post", post_controller_1.default);
     app.use(globalErrorHandler_middleware_1.globalErrorHandler);
     app.listen(port, () => {
         console.log(`Server is running in port ${port}`);

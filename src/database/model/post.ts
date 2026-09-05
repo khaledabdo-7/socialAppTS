@@ -1,13 +1,10 @@
-import { IPost } from "../common/interface/post.interface";
+import { IPost } from "../../common/interface/post.interface";
 import mongoose from "mongoose";
+import { ReactType } from "../../common/enum/reacts.enum";
+
 
 const PostSchema = new mongoose.Schema<IPost>(
   {
-    id: {
-      type: String,
-      required: true,
-      unique: true,
-    },
     title: {
       type: String,
       required: true,
@@ -18,7 +15,6 @@ const PostSchema = new mongoose.Schema<IPost>(
     },
     ownerId: {
       type: mongoose.Schema.Types.ObjectId,
-      required: true,
       ref: "User",
     },
     tags: {
@@ -31,6 +27,10 @@ const PostSchema = new mongoose.Schema<IPost>(
     },
     imageUrl: {
       type: String,
+    },
+    reaction: {
+      type: String,
+      enum: Object.values(ReactType),
     },
   },
   { timestamps: true },

@@ -3,10 +3,12 @@ import jwt from "jsonwebtoken";
 import { env } from "../config/env.service";
 import { UnauthorizedError } from "../common/response/error.response";
 import { redisClient } from "../database/redis.connection";
-import { User } from "../model/user.model";
-import { InternalServerError } from "../common/response/error.response";
+import { User } from "../database/model/user.model";
+import { BadRequestError } from "../common/response/error.response";
+import { CustomJwtPayload } from "../common/interface/user.interface";
+import { UserReq } from "../common/interface/userReq.interface";
 
-const authMiddleware = () => {
+export const authMiddleware = () => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
       let accessToken;
@@ -19,6 +21,7 @@ const authMiddleware = () => {
       if (!accessToken) {
         throw new UnauthorizedError("Unauthorized");
       }
+      
       const decoded = jwt.verify(accessToken, env.JWT_SECRET_LOGIN) as {
         id: string;
       };
@@ -32,10 +35,28 @@ const authMiddleware = () => {
       if (!user) {
         throw new UnauthorizedError("Unauthorized");
       }
-      (req as any).user = user;
+      (req as UserReq).user = user;
       next();
     } catch (error) {
-      throw new InternalServerError("Internal server error");
+      console.error("Error in authMiddleware:", error);
+      throw new BadRequestError("Something went wrong");
+    }
+  };
+};
+
+export const authorization = (allowedRoles: string[]) => {
+  return async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const role = (req as any).user.role;
+      if (!role) {
+        throw new UnauthorizedError("Please login First");
+      }
+      if (!allowedRoles.includes(role)) {
+        throw new UnauthorizedError("Unauthorized");
+      }
+      next();
+    } catch (error) {
+      throw new BadRequestError("Something went wrong");
     }
   };
 };

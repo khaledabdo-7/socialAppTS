@@ -7,7 +7,7 @@ const authRouter = Router();
 
 authRouter.post(
   "/register",
-  validationMiddleware(authValidation.registerSchema),
+  // validationMiddleware(authValidation.registerSchema),
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { email, password, confirmPassword, name, gender, role, provider } =
@@ -30,7 +30,7 @@ authRouter.post(
 
 authRouter.post(
   "/login",
-  validationMiddleware(authValidation.loginSchema),
+  // validationMiddleware(authValidation.loginSchema),
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { email, password } = req.body;

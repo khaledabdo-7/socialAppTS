@@ -1,14 +1,14 @@
-import { IUser } from "../common/interface/user.interface";
+import { IUser } from "../../common/interface/user.interface";
 import mongoose from "mongoose";
-import { UserRole, UserGender, ProviderType } from "../common/enum/user.enum";
+import {
+  UserRole,
+  UserGender,
+  ProviderType,
+} from "../../common/enum/user.enum";
+
 
 const UserSchema = new mongoose.Schema<IUser>(
   {
-    id: {
-      type: String,
-      required: false,
-      unique: true,
-    },
     name: {
       type: String,
       required: true,

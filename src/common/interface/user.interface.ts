@@ -1,4 +1,5 @@
 import { ProviderType, UserGender, UserRole } from "../enum/user.enum";
+import { JwtPayload } from "jsonwebtoken";
 
 export interface IUser {
   id?: string;
@@ -13,4 +14,9 @@ export interface IUser {
   isDeactivated?: boolean;
   isVerified: boolean;
   isPrivate?: boolean;
+}
+
+export interface CustomJwtPayload extends JwtPayload {
+  id: string;
+  role: UserRole;
 }
