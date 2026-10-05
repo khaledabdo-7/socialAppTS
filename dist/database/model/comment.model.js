@@ -12,17 +12,17 @@ const CommentSchema = new mongoose_1.default.Schema({
         required: true,
     },
     ownerId: {
-        type: mongoose_1.default.Schema.Types.ObjectId,
+        type: mongoose_1.default.Types.ObjectId,
         required: true,
         ref: "User",
     },
     postId: {
-        type: mongoose_1.default.Schema.Types.ObjectId,
+        type: mongoose_1.default.Types.ObjectId,
         required: true,
         ref: "Post",
     },
     mentions: {
-        type: [mongoose_1.default.Schema.Types.ObjectId],
+        type: [mongoose_1.default.Types.ObjectId],
         ref: "User",
     },
     imageUrl: {
@@ -33,7 +33,7 @@ const CommentSchema = new mongoose_1.default.Schema({
         enum: Object.values(reacts_enum_1.ReactType),
     },
     replies: {
-        type: [mongoose_1.default.Schema.Types.ObjectId],
+        type: [mongoose_1.default.Types.ObjectId],
         ref: "Comment",
     },
 }, { timestamps: true });

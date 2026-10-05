@@ -27,12 +27,25 @@ const PostSchema = new mongoose_1.default.Schema({
         type: Boolean,
         default: true,
     },
+    comments: {
+        type: [mongoose_1.default.Schema.Types.ObjectId],
+        ref: "Comment",
+    },
     imageUrl: {
         type: String,
     },
-    reaction: {
-        type: String,
-        enum: Object.values(reacts_enum_1.ReactType),
-    },
+    reaction: [
+        {
+            userId: {
+                type: mongoose_1.default.Schema.Types.ObjectId,
+                ref: "User",
+                required: true,
+            },
+            type: {
+                type: String,
+                enum: Object.values(reacts_enum_1.ReactType),
+            },
+        },
+    ],
 }, { timestamps: true });
 exports.Post = mongoose_1.default.model("Post", PostSchema);

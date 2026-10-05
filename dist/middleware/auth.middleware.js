@@ -10,7 +10,7 @@ const error_response_1 = require("../common/response/error.response");
 const redis_connection_1 = require("../database/redis.connection");
 const user_model_1 = require("../database/model/user.model");
 const error_response_2 = require("../common/response/error.response");
-const authMiddleware = () => {
+const authMiddleware = (token) => {
     return async (req, res, next) => {
         try {
             let accessToken;

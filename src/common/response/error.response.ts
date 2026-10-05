@@ -1,3 +1,7 @@
+import { GraphQLError } from "graphql";
+
+
+
 export class ApplicationError extends Error {
     public statusCode: number;
   constructor(message: string, statusCode: number,cause?: any) {
@@ -6,6 +10,10 @@ export class ApplicationError extends Error {
     this.statusCode = statusCode;
     this.cause = cause;
   }
+}
+
+export const mapGraphQLError = (error: ApplicationError) => {
+throw new GraphQLError(error.message, {extensions: {statusCode: error.statusCode}});
 }
 
 export class BadRequestError extends ApplicationError {

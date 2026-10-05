@@ -1,5 +1,5 @@
 import { IUser } from "./user.interface";
-import { Types } from "mongoose";
+import mongoose from "mongoose";
 import { ReactType } from "../enum/reacts.enum";
 import { Request } from "express";
 
@@ -7,11 +7,12 @@ export interface IPost {
   id: string;
   title: string;
   content: string;
-  ownerId: Types.ObjectId | IUser;
-  tags?: Types.ObjectId[] | IUser[];
+  comments?: mongoose.Types.ObjectId[];
+  ownerId: mongoose.Types.ObjectId;
+  tags?: mongoose.Types.ObjectId[];
   allowComments: boolean;
   imageUrl?: string[];
-  reaction?: ReactType;
+  reaction?: { userId: mongoose.Types.ObjectId; type: ReactType }[];
 }
 
 export interface AuthRequest extends Request {
@@ -19,3 +20,7 @@ export interface AuthRequest extends Request {
     id: string;
   };
 }
+
+
+
+

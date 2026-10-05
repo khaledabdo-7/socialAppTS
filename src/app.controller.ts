@@ -10,6 +10,8 @@ import authRouter from "./module/auth/auth.controller";
 import { redisConnection } from "./database/redis.connection";
 import rateLimiter from "./middleware/rateLimit.middleware";
 import postRouter from "./module/post/post.controller";
+import { createHandler } from "graphql-http/lib/use/express";
+import { schema } from "./module/gql/schema.gql";
 
 export const bootstrap = async () => {
   const app: Express = express();
@@ -28,6 +30,10 @@ export const bootstrap = async () => {
   await connectDB();
   await redisConnection();
 
+  app.all(
+    "/graphql",
+    createHandler({ schema: schema, context: (req) => ({ req }) }),
+  );
   app.use("/auth", authRouter);
   app.use("/post", postRouter);
   app.use(globalErrorHandler);

@@ -8,7 +8,7 @@ import { BadRequestError } from "../common/response/error.response";
 import { CustomJwtPayload } from "../common/interface/user.interface";
 import { UserReq } from "../common/interface/userReq.interface";
 
-export const authMiddleware = () => {
+export const authMiddleware = (token?: string) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
       let accessToken;
@@ -21,7 +21,7 @@ export const authMiddleware = () => {
       if (!accessToken) {
         throw new UnauthorizedError("Unauthorized");
       }
-      
+
       const decoded = jwt.verify(accessToken, env.JWT_SECRET_LOGIN) as {
         id: string;
       };

@@ -16,10 +16,15 @@ import sendEmail from "../../../common/utils/sendEmail";
 import crypto from "crypto";
 import { redisClient } from "../../../database/redis.connection";
 import OAuth2Client from "google-auth-library";
+import { DatabaseRepository } from "../../../database/repositories/database.repositorie";
 
 class AuthService {
+  private userRepository: DatabaseRepository<IUser>;
+  constructor() {
+    this.userRepository = new DatabaseRepository(User);
+  }
   async login(email: string, password: string): Promise<IAuthResponse> {
-    const user = await User.findOne({ email });
+    const user = await await this.userRepository.findOne({ filter: { email } });
     if (!user) {
       throw new NotFoundError("User not found");
     }
@@ -65,7 +70,7 @@ class AuthService {
     if (password !== confirmPassword) {
       throw new BadRequestError("Passwords do not match");
     }
-    const user = await User.findOne({ email });
+    const user = await this.userRepository.findOne({ filter: { email } });
     if (user) {
       throw new UserAlreadyExistsError("User already exists");
     }
@@ -98,7 +103,7 @@ class AuthService {
   }
 
   async verifyOtp(email: string, otp: string): Promise<boolean> {
-    const user = await User.findOne({ email });
+    const user = await  this.userRepository.findOne({ filter: { email } });
     if (!user) {
       throw new NotFoundError("User not found");
     }
@@ -120,7 +125,7 @@ class AuthService {
   }
 
   async resendOtp(email: string): Promise<void> {
-    const user = await User.findOne({ email });
+    const user = await  this.userRepository.findOne({ filter: { email } });
     if (!user) {
       throw new NotFoundError("User not found");
     }
@@ -218,7 +223,7 @@ class AuthService {
   }
 
   async forgetPassword(email: string): Promise<void> {
-    const user = await User.findOne({ email });
+    const user =  await this.userRepository.findOne({ filter: { email } });
     if (!user) {
       throw new NotFoundError("User not found");
     }
@@ -243,7 +248,7 @@ class AuthService {
     otp: string,
     newPassword: string,
   ): Promise<void> {
-    const user = await User.findOne({ email });
+    const user = await  this.userRepository.findOne({ filter: { email } });
     if (!user) {
       throw new NotFoundError("User not found");
     }
@@ -265,7 +270,7 @@ class AuthService {
     oldPassword: string,
     newPassword: string,
   ): Promise<void> {
-    const user = await User.findOne({ email });
+    const user = await  this.userRepository.findOne({ filter: { email } });
     if (!user) {
       throw new NotFoundError("User not found");
     }

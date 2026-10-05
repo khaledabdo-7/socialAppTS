@@ -4,14 +4,24 @@ import { FriendStatus } from "../../../common/enum/friend.enum";
 import { User } from "../../../database/model/user.model";
 import { NotFoundError } from "../../../common/response/error.response";
 import { ObjectId } from "mongodb";
-
+import { DatabaseRepository } from "../../../database/repositories/database.repositorie";
+import { IUser } from "../../../common/interface/user.interface";
 export class FriendService {
+  private userRepository: DatabaseRepository<IUser>;
+  constructor() {
+    this.userRepository = new DatabaseRepository(User);
+  }
+
   public async sendFriendRequest(
     requesterId: ObjectId,
     recipientId: ObjectId,
   ): Promise<IFriend> {
-    const existingRequester = await User.findOne({ _id: requesterId });
-    const existingRecipient = await User.findOne({ _id: recipientId });
+    const existingRequester = await this.userRepository.findOne({
+      filter: { _id: requesterId },
+    });
+    const existingRecipient = await this.userRepository.findOne({
+      filter: { _id: recipientId },
+    });
     if (!existingRequester || !existingRecipient) {
       throw new NotFoundError("User not found");
     }
@@ -30,8 +40,12 @@ export class FriendService {
     requesterId: ObjectId,
     recipientId: ObjectId,
   ): Promise<any> {
-    const existingRequester = await User.findOne({ _id: requesterId });
-    const existingRecipient = await User.findOne({ _id: recipientId });
+    const existingRequester = await this.userRepository.findOne({
+      filter: { _id: requesterId },
+    });
+    const existingRecipient = await this.userRepository.findOne({
+      filter: { _id: recipientId },
+    });
     if (!existingRequester || !existingRecipient) {
       throw new NotFoundError("User not found");
     }
@@ -56,12 +70,16 @@ export class FriendService {
     requesterId: ObjectId,
     recipientId: ObjectId,
   ): Promise<any> {
-    const existingRequester = await User.findOne({ _id: requesterId });
-    const existingRecipient = await User.findOne({ _id: recipientId });
+    const existingRequester = await this.userRepository.findOne({
+      filter: { _id: requesterId },
+    });
+    const existingRecipient = await this.userRepository.findOne({
+      filter: { _id: recipientId },
+    });
     if (!existingRequester || !existingRecipient) {
       throw new NotFoundError("User not found");
     }
-    const friend = await FriendModel.findOneAndUpdate(
+    const friend = await this.userRepository.updateOne(
       {
         requester: requesterId,
         recipient: recipientId,
@@ -72,7 +90,6 @@ export class FriendService {
           status: FriendStatus.REJECTED,
         },
       },
-      { new: true },
     );
 
     return friend;

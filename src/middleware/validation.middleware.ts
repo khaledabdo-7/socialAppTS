@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { BadRequestError } from "../common/response/error.response";
 import { ZodType, ZodError } from "zod";
+import { mapGraphQLError } from "../common/response/error.response";
 
 type KeyReq = "body" | "query" | "params" | "headers";
 
@@ -58,4 +59,18 @@ export const validationMiddleware = (schema: ZodType<any, any, any>) => {
 
     next();
   };
+};
+
+export const GQLValidation = <T>(schema: ZodType<T>, args: any): T => {
+  const valResult = schema.safeParse(args);
+
+  if (!valResult.success) {
+    const errorMessage = valResult.error.issues;
+    throw mapGraphQLError(
+      new BadRequestError("Validation failed", {
+        extensions: { error: errorMessage },
+      }),
+    );
+  }
+  return valResult.data;
 };

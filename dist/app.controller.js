@@ -14,6 +14,8 @@ const auth_controller_1 = __importDefault(require("./module/auth/auth.controller
 const redis_connection_1 = require("./database/redis.connection");
 const rateLimit_middleware_1 = __importDefault(require("./middleware/rateLimit.middleware"));
 const post_controller_1 = __importDefault(require("./module/post/post.controller"));
+const express_2 = require("graphql-http/lib/use/express");
+const schema_gql_1 = require("./module/gql/schema.gql");
 const bootstrap = async () => {
     const app = (0, express_1.default)();
     const port = env_service_1.env.PORT;
@@ -26,6 +28,7 @@ const bootstrap = async () => {
     app.use((0, helmet_1.default)());
     await (0, mongo_connection_1.connectDB)();
     await (0, redis_connection_1.redisConnection)();
+    app.all("/graphql", (0, express_2.createHandler)({ schema: schema_gql_1.schema, context: (req) => ({ req }) }));
     app.use("/auth", auth_controller_1.default);
     app.use("/post", post_controller_1.default);
     app.use(globalErrorHandler_middleware_1.globalErrorHandler);

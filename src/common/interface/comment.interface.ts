@@ -8,6 +8,11 @@ export interface IComment {
   content: string;
   ownerId: mongoose.Types.ObjectId | IUser;
   postId: mongoose.Types.ObjectId | IPost;
+
+  // postId: mongoose.Schema.Types.ObjectId
+
+  // import { Types } from "mongoose";
+  // ownerId: Types.ObjectId
   mentions?: mongoose.Types.ObjectId[] | IUser[];
   imageUrl?: string[];
   reactions?: ReactType;

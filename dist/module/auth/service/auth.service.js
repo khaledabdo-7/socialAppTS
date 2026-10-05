@@ -13,9 +13,14 @@ const bcrypt_2 = __importDefault(require("bcrypt"));
 const sendEmail_1 = __importDefault(require("../../../common/utils/sendEmail"));
 const crypto_1 = __importDefault(require("crypto"));
 const redis_connection_1 = require("../../../database/redis.connection");
+const database_repositorie_1 = require("../../../database/repositories/database.repositorie");
 class AuthService {
+    userRepository;
+    constructor() {
+        this.userRepository = new database_repositorie_1.DatabaseRepository(user_model_1.User);
+    }
     async login(email, password) {
-        const user = await user_model_1.User.findOne({ email });
+        const user = await await this.userRepository.findOne({ filter: { email } });
         if (!user) {
             throw new error_response_1.NotFoundError("User not found");
         }
@@ -41,7 +46,7 @@ class AuthService {
         if (password !== confirmPassword) {
             throw new error_response_1.BadRequestError("Passwords do not match");
         }
-        const user = await user_model_1.User.findOne({ email });
+        const user = await this.userRepository.findOne({ filter: { email } });
         if (user) {
             throw new error_response_1.UserAlreadyExistsError("User already exists");
         }
@@ -70,7 +75,7 @@ class AuthService {
         return newUser;
     }
     async verifyOtp(email, otp) {
-        const user = await user_model_1.User.findOne({ email });
+        const user = await this.userRepository.findOne({ filter: { email } });
         if (!user) {
             throw new error_response_1.NotFoundError("User not found");
         }
@@ -88,7 +93,7 @@ class AuthService {
         return true;
     }
     async resendOtp(email) {
-        const user = await user_model_1.User.findOne({ email });
+        const user = await this.userRepository.findOne({ filter: { email } });
         if (!user) {
             throw new error_response_1.NotFoundError("User not found");
         }
@@ -160,7 +165,7 @@ class AuthService {
         }
     }
     async forgetPassword(email) {
-        const user = await user_model_1.User.findOne({ email });
+        const user = await this.userRepository.findOne({ filter: { email } });
         if (!user) {
             throw new error_response_1.NotFoundError("User not found");
         }
@@ -178,7 +183,7 @@ class AuthService {
         await redis_connection_1.redisClient.set(`forgetPasswordOtp:${email}`, hashedOtp, { EX: 600 });
     }
     async resetPassword(email, otp, newPassword) {
-        const user = await user_model_1.User.findOne({ email });
+        const user = await this.userRepository.findOne({ filter: { email } });
         if (!user) {
             throw new error_response_1.NotFoundError("User not found");
         }
@@ -195,7 +200,7 @@ class AuthService {
         await user.save();
     }
     async changePassword(email, oldPassword, newPassword) {
-        const user = await user_model_1.User.findOne({ email });
+        const user = await this.userRepository.findOne({ filter: { email } });
         if (!user) {
             throw new error_response_1.NotFoundError("User not found");
         }

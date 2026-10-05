@@ -2,7 +2,6 @@ import { IPost } from "../../common/interface/post.interface";
 import mongoose from "mongoose";
 import { ReactType } from "../../common/enum/reacts.enum";
 
-
 const PostSchema = new mongoose.Schema<IPost>(
   {
     title: {
@@ -25,13 +24,26 @@ const PostSchema = new mongoose.Schema<IPost>(
       type: Boolean,
       default: true,
     },
+    comments: {
+      type: [mongoose.Schema.Types.ObjectId],
+      ref: "Comment",
+    },
     imageUrl: {
       type: String,
     },
-    reaction: {
-      type: String,
-      enum: Object.values(ReactType),
-    },
+    reaction: [
+      {
+        userId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+          required: true,
+        },
+        type: {
+          type: String,
+          enum: Object.values(ReactType),
+        },
+      },
+    ],
   },
   { timestamps: true },
 );
