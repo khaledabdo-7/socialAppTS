@@ -11,9 +11,9 @@ const postRouter = (0, express_1.default)();
 postRouter.post("/create-post", (0, auth_middleware_1.authMiddleware)(), async (req, res, next) => {
     try {
         const postData = req.body;
-        console.log("Post data in controller:", postData); // Log the post data to verify its structure
+        console.log("Post data in controller:", postData);
         postData.ownerId = req.user?.id;
-        console.log("Owner ID in controller:", postData.ownerId); // Log the owner ID to verify its structure
+        console.log("Owner ID in controller:", postData.ownerId);
         const newPost = await post_service_1.default.createPost(postData);
         return (0, success_response_1.successResponse)(res, newPost, "Post created successfully", 201);
     }

@@ -12,6 +12,7 @@ import rateLimiter from "./middleware/rateLimit.middleware";
 import postRouter from "./module/post/post.controller";
 import { createHandler } from "graphql-http/lib/use/express";
 import { schema } from "./module/gql/schema.gql";
+import { realtimeGateway } from "./module/realtime/realtime.gateway";
 
 export const bootstrap = async () => {
   const app: Express = express();
@@ -38,7 +39,9 @@ export const bootstrap = async () => {
   app.use("/post", postRouter);
   app.use(globalErrorHandler);
 
-  app.listen(port, () => {
+  const httpServer = app.listen(port, () => {
     console.log(`Server is running in port ${port}`);
   });
+
+  realtimeGateway.initializer(httpServer);
 };

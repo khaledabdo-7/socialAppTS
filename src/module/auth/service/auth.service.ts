@@ -17,6 +17,10 @@ import crypto from "crypto";
 import { redisClient } from "../../../database/redis.connection";
 import OAuth2Client from "google-auth-library";
 import { DatabaseRepository } from "../../../database/repositories/database.repositorie";
+import {
+  generateAccessToken,
+  generateRefreshToken,
+} from "../../../common/utils/genrateToken";
 
 class AuthService {
   private userRepository: DatabaseRepository<IUser>;
@@ -33,23 +37,8 @@ class AuthService {
       throw new UnauthorizedError("Invalid password");
     }
 
-    const accessToken = jwt.sign(
-      { id: user._id, role: user.role },
-      env.JWT_SECRET_LOGIN,
-      {
-        expiresIn: "1h",
-        jwtid: uuidv4(),
-      },
-    );
-
-    const refreshToken = jwt.sign(
-      { id: user._id, role: user.role },
-      env.JWT_SECRET_REFRESH,
-      {
-        expiresIn: "7d",
-        jwtid: uuidv4(),
-      },
-    );
+    const accessToken = generateAccessToken(user);
+    const refreshToken = generateRefreshToken(user);
 
     return {
       user,
@@ -103,7 +92,7 @@ class AuthService {
   }
 
   async verifyOtp(email: string, otp: string): Promise<boolean> {
-    const user = await  this.userRepository.findOne({ filter: { email } });
+    const user = await this.userRepository.findOne({ filter: { email } });
     if (!user) {
       throw new NotFoundError("User not found");
     }
@@ -125,7 +114,7 @@ class AuthService {
   }
 
   async resendOtp(email: string): Promise<void> {
-    const user = await  this.userRepository.findOne({ filter: { email } });
+    const user = await this.userRepository.findOne({ filter: { email } });
     if (!user) {
       throw new NotFoundError("User not found");
     }
@@ -162,13 +151,8 @@ class AuthService {
         env.JWT_SECRET_REFRESH,
       ) as jwt.JwtPayload;
 
-      const accessToken = jwt.sign(
-        { id: decodedToken.id, role: decodedToken.role },
-        env.JWT_SECRET_LOGIN,
-        {
-          expiresIn: "1h",
-          jwtid: uuidv4(),
-        },
+      const accessToken = generateAccessToken(
+        decodedToken as { _id: string; role: string },
       );
       return accessToken;
     } catch (error) {
@@ -223,7 +207,7 @@ class AuthService {
   }
 
   async forgetPassword(email: string): Promise<void> {
-    const user =  await this.userRepository.findOne({ filter: { email } });
+    const user = await this.userRepository.findOne({ filter: { email } });
     if (!user) {
       throw new NotFoundError("User not found");
     }
@@ -248,7 +232,7 @@ class AuthService {
     otp: string,
     newPassword: string,
   ): Promise<void> {
-    const user = await  this.userRepository.findOne({ filter: { email } });
+    const user = await this.userRepository.findOne({ filter: { email } });
     if (!user) {
       throw new NotFoundError("User not found");
     }
@@ -270,7 +254,7 @@ class AuthService {
     oldPassword: string,
     newPassword: string,
   ): Promise<void> {
-    const user = await  this.userRepository.findOne({ filter: { email } });
+    const user = await this.userRepository.findOne({ filter: { email } });
     if (!user) {
       throw new NotFoundError("User not found");
     }

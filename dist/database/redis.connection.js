@@ -8,7 +8,6 @@ exports.redisClient = (0, redis_1.createClient)({
 const redisConnection = async () => {
     try {
         await exports.redisClient.connect();
-        console.log("Redis connected successfully 🚀");
     }
     catch (error) {
         console.log("Redis connection error 😭", error);

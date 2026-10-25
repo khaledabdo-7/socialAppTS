@@ -1,7 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.validationMiddleware = void 0;
+exports.GQLValidation = exports.validationMiddleware = void 0;
 const error_response_1 = require("../common/response/error.response");
+const error_response_2 = require("../common/response/error.response");
 const validationMiddleware = (schema) => {
     return async (req, res, next) => {
         const valResult = schema.safeParse({
@@ -40,3 +41,14 @@ const validationMiddleware = (schema) => {
     };
 };
 exports.validationMiddleware = validationMiddleware;
+const GQLValidation = (schema, args) => {
+    const valResult = schema.safeParse(args);
+    if (!valResult.success) {
+        const errorMessage = valResult.error.issues;
+        throw (0, error_response_2.mapGraphQLError)(new error_response_1.BadRequestError("Validation failed", {
+            extensions: { error: errorMessage },
+        }));
+    }
+    return valResult.data;
+};
+exports.GQLValidation = GQLValidation;

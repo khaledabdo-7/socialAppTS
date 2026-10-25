@@ -8,9 +8,9 @@ class PostService {
         this.postRepository = new database_repositorie_1.DatabaseRepository(post_1.Post);
     }
     async createPost(postData) {
-        console.log("Post data in service:", postData); // Log the post data to verify its structure
+        console.log("Post data in service:", postData);
         const newPost = await this.postRepository.create(postData);
-        console.log("New post created:", newPost); // Log the new post to verify its structure
+        console.log("New post created:", newPost);
         await newPost.save();
         return newPost;
     }

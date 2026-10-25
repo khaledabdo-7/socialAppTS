@@ -7,16 +7,15 @@ import { AuthRequest } from "../../common/interface/post.interface";
 
 const postRouter = Router();
 
-
 postRouter.post(
   "/create-post",
   authMiddleware(),
   async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
       const postData = req.body;
-      console.log("Post data in controller:", postData); // Log the post data to verify its structure
+      console.log("Post data in controller:", postData);
       postData.ownerId = req.user?.id;
-      console.log("Owner ID in controller:", postData.ownerId); // Log the owner ID to verify its structure
+      console.log("Owner ID in controller:", postData.ownerId);
       const newPost = await postService.createPost(postData);
       return successResponse(res, newPost, "Post created successfully", 201);
     } catch (error) {

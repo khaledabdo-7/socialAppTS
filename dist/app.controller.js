@@ -16,6 +16,7 @@ const rateLimit_middleware_1 = __importDefault(require("./middleware/rateLimit.m
 const post_controller_1 = __importDefault(require("./module/post/post.controller"));
 const express_2 = require("graphql-http/lib/use/express");
 const schema_gql_1 = require("./module/gql/schema.gql");
+const realtime_gateway_1 = require("./module/realtime/realtime.gateway");
 const bootstrap = async () => {
     const app = (0, express_1.default)();
     const port = env_service_1.env.PORT;
@@ -32,8 +33,9 @@ const bootstrap = async () => {
     app.use("/auth", auth_controller_1.default);
     app.use("/post", post_controller_1.default);
     app.use(globalErrorHandler_middleware_1.globalErrorHandler);
-    app.listen(port, () => {
+    const httpServer = app.listen(port, () => {
         console.log(`Server is running in port ${port}`);
     });
+    realtime_gateway_1.realtimeGateway.initializer(httpServer);
 };
 exports.bootstrap = bootstrap;

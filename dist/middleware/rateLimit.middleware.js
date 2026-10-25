@@ -7,9 +7,9 @@ const express_rate_limit_1 = __importDefault(require("express-rate-limit"));
 const rateLimiter = (windowMs, limit) => {
     return (0, express_rate_limit_1.default)({
         windowMs,
-        limit, // Limit each IP to 100 requests per window
-        standardHeaders: "draft-8", // Return rate limit info in headers
-        legacyHeaders: false, // Disable the X-RateLimit-* headers
+        limit,
+        standardHeaders: "draft-8",
+        legacyHeaders: false,
     });
 };
 exports.default = rateLimiter;

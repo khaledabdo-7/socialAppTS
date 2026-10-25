@@ -7,7 +7,6 @@ const express_1 = __importDefault(require("express"));
 const success_response_1 = require("../../common/response/success.response");
 const comment_service_1 = require("./service/comment.service");
 const auth_middleware_1 = require("../../middleware/auth.middleware");
-// import { ObjectId } from "mongoose";
 const commentRouter = (0, express_1.default)();
 const commentService = new comment_service_1.CommentService();
 commentRouter.post("/create-comment", (0, auth_middleware_1.authMiddleware)(), async (req, res, next) => {

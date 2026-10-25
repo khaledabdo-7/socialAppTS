@@ -10,9 +10,9 @@ class PostService {
   }
 
   public async createPost(postData : IPost): Promise<IPost> {
-    console.log("Post data in service:", postData); // Log the post data to verify its structure
+    console.log("Post data in service:", postData);
     const newPost = await this.postRepository.create(postData);
-    console.log("New post created:", newPost); // Log the new post to verify its structure
+    console.log("New post created:", newPost);
     await newPost.save();
     return newPost;
   }

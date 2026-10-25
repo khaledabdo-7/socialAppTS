@@ -4,7 +4,6 @@ import { CommentService } from "./service/comment.service";
 import { authMiddleware } from "../../middleware/auth.middleware";
 import { AuthRequest } from "../../common/interface/post.interface";
 import mongoose from "mongoose";
-// import { ObjectId } from "mongoose";
 
 const commentRouter = Router();
 const commentService = new CommentService();

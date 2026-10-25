@@ -8,12 +8,12 @@ const env_service_1 = require("../../../config/env.service");
 const bcrypt_1 = require("bcrypt");
 const error_response_1 = require("../../../common/response/error.response");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
-const uuid_1 = require("uuid");
 const bcrypt_2 = __importDefault(require("bcrypt"));
 const sendEmail_1 = __importDefault(require("../../../common/utils/sendEmail"));
 const crypto_1 = __importDefault(require("crypto"));
 const redis_connection_1 = require("../../../database/redis.connection");
 const database_repositorie_1 = require("../../../database/repositories/database.repositorie");
+const genrateToken_1 = require("../../../common/utils/genrateToken");
 class AuthService {
     userRepository;
     constructor() {
@@ -28,14 +28,8 @@ class AuthService {
         if (!isMatch) {
             throw new error_response_1.UnauthorizedError("Invalid password");
         }
-        const accessToken = jsonwebtoken_1.default.sign({ id: user._id, role: user.role }, env_service_1.env.JWT_SECRET_LOGIN, {
-            expiresIn: "1h",
-            jwtid: (0, uuid_1.v4)(),
-        });
-        const refreshToken = jsonwebtoken_1.default.sign({ id: user._id, role: user.role }, env_service_1.env.JWT_SECRET_REFRESH, {
-            expiresIn: "7d",
-            jwtid: (0, uuid_1.v4)(),
-        });
+        const accessToken = (0, genrateToken_1.generateAccessToken)(user);
+        const refreshToken = (0, genrateToken_1.generateRefreshToken)(user);
         return {
             user,
             accessToken,
@@ -123,10 +117,7 @@ class AuthService {
     async refreshToken(refreshToken) {
         try {
             const decodedToken = jsonwebtoken_1.default.verify(refreshToken, env_service_1.env.JWT_SECRET_REFRESH);
-            const accessToken = jsonwebtoken_1.default.sign({ id: decodedToken.id, role: decodedToken.role }, env_service_1.env.JWT_SECRET_LOGIN, {
-                expiresIn: "1h",
-                jwtid: (0, uuid_1.v4)(),
-            });
+            const accessToken = (0, genrateToken_1.generateAccessToken)(decodedToken);
             return accessToken;
         }
         catch (error) {

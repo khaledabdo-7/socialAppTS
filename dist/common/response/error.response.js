@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UserAlreadyExistsError = exports.LikeNotFoundError = exports.CommentNotFoundError = exports.PostNotFoundError = exports.UserNotFoundError = exports.NotAuthorizedError = exports.NotAuthenticatedError = exports.UnauthenticatedError = exports.ValidationError = exports.InternalServerError = exports.ConflictError = exports.NotFoundError = exports.ForbiddenError = exports.UnauthorizedError = exports.BadRequestError = exports.ApplicationError = void 0;
+exports.UserAlreadyExistsError = exports.LikeNotFoundError = exports.CommentNotFoundError = exports.PostNotFoundError = exports.UserNotFoundError = exports.NotAuthorizedError = exports.NotAuthenticatedError = exports.UnauthenticatedError = exports.ValidationError = exports.InternalServerError = exports.ConflictError = exports.NotFoundError = exports.ForbiddenError = exports.UnauthorizedError = exports.BadRequestError = exports.mapGraphQLError = exports.ApplicationError = void 0;
+const graphql_1 = require("graphql");
 class ApplicationError extends Error {
     statusCode;
     constructor(message, statusCode, cause) {
@@ -11,6 +12,10 @@ class ApplicationError extends Error {
     }
 }
 exports.ApplicationError = ApplicationError;
+const mapGraphQLError = (error) => {
+    throw new graphql_1.GraphQLError(error.message, { extensions: { statusCode: error.statusCode } });
+};
+exports.mapGraphQLError = mapGraphQLError;
 class BadRequestError extends ApplicationError {
     constructor(message, cause) {
         super(message, 400, cause);

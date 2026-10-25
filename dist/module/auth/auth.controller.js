@@ -42,9 +42,7 @@ const success_response_1 = require("../../common/response/success.response");
 const authValidation = __importStar(require("./auth.validation"));
 const validation_middleware_1 = require("../../middleware/validation.middleware");
 const authRouter = (0, express_1.default)();
-authRouter.post("/register", 
-// validationMiddleware(authValidation.registerSchema),
-async (req, res, next) => {
+authRouter.post("/register", async (req, res, next) => {
     try {
         const { email, password, confirmPassword, name, gender, role, provider } = req.body;
         const user = await auth_service_1.default.register(email, password, confirmPassword, name, gender, role, provider);
@@ -54,9 +52,7 @@ async (req, res, next) => {
         next(error);
     }
 });
-authRouter.post("/login", 
-// validationMiddleware(authValidation.loginSchema),
-async (req, res, next) => {
+authRouter.post("/login", async (req, res, next) => {
     try {
         const { email, password } = req.body;
         const authResponse = await auth_service_1.default.login(email, password);
