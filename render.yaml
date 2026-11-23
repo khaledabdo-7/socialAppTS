@@ -1,0 +1,42 @@
+services:
+  - type: web
+    name: sphere-backend
+    runtime: node
+    plan: free
+    region: frankfurt
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: prod
+      - key: DB_URL
+        value: "mongodb://khaled:152003Kk@ac-fvbodjk-shard-00-00.wuq2xn8.mongodb.net:27017,ac-fvbodjk-shard-00-01.wuq2xn8.mongodb.net:27017,ac-fvbodjk-shard-00-02.wuq2xn8.mongodb.net:27017/socialMediaAppTS?ssl=true&replicaSet=atlas-ayro9z-shard-0&authSource=admin&appName=Cluster0"
+      - key: REDIS_URL
+        value: "rediss://default:gQAAAAAAAe8vAAIgcDE2YTIyNzU0YmQ3OTI0OWQzYTkxNDBhYzlmYWZhMGYzZQ@warm-jackal-126767.upstash.io:6379"
+      - key: ENCRYPTED_KEY
+        value: "123456789"
+      - key: SALT
+        value: "10"
+      - key: EMAIL_USER
+        value: "18111978aa@gmail.com"
+      - key: EMAIL_PASS
+        value: "uesgbeqfnfsyeyup"
+      - key: JWT_SECRET
+        value: "16841!2434SX"
+      - key: JWT_SECRET_LOGIN
+        value: "455741XDC234R+"
+      - key: JWT_SECRET_REFRESH
+        value: "16841!2AA4A3ADS4SX"
+      - key: CLOUDINARY_CLOUD_NAME
+        value: "dxubyewic"
+      - key: CLOUDINARY_API_KEY
+        value: "533135644927423"
+      - key: CLOUDINARY_API_SECRET
+        value: "wHvr56Ht9troC_mbMwt2-Rl2KDo"
+      - key: CLOUDINARY_FOLDER
+        value: "socialAppTS"
+      - key: CLIENT_ID
+        value: "717726099706-vj902v3ujqv1eln832473au52m9m7p99.apps.googleusercontent.com"
+      - key: CLIENT_URL
+        value: "https://fast-frost-cuqhg53.tmp.now"
