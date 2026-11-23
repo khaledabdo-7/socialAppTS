@@ -54,7 +54,33 @@ const UserSchema = new mongoose_1.default.Schema({
         type: Boolean,
         default: false,
     },
+    avatar: {
+        type: String,
+        default: "",
+    },
+    avatarUrl: {
+        type: String,
+        default: "",
+    },
+    bio: {
+        type: String,
+        default: "",
+    },
+    coverImage: {
+        type: String,
+        default: "",
+    },
 }, {
     timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
+});
+UserSchema.pre("save", function () {
+    if (this.avatar && !this.avatarUrl) {
+        this.avatarUrl = this.avatar;
+    }
+    else if (this.avatarUrl && !this.avatar) {
+        this.avatar = this.avatarUrl;
+    }
 });
 exports.User = mongoose_1.default.model("User", UserSchema);

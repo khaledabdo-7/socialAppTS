@@ -57,6 +57,9 @@ export const validationMiddleware = (schema: ZodType<any, any, any>) => {
       throw new BadRequestError("Validation failed", issuesList);
     }
 
+    if (valResult.data?.body) {
+      req.body = valResult.data.body;
+    }
     next();
   };
 };

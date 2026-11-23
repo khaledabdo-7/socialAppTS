@@ -35,8 +35,8 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.logoutSchema = exports.refreshTokenSchema = exports.changePasswordSchema = exports.resetPasswordSchema = exports.forgetPasswordSchema = exports.resendOtpSchema = exports.verifyOtpSchema = exports.registerSchema = exports.loginSchema = void 0;
 const z = __importStar(require("zod"));
-exports.loginSchema = z.strictObject({
-    body: z.strictObject({
+exports.loginSchema = z.object({
+    body: z.object({
         email: z
             .string()
             .email()
@@ -50,9 +50,9 @@ exports.loginSchema = z.strictObject({
         }),
     }),
 });
-exports.registerSchema = z.strictObject({
+exports.registerSchema = z.object({
     body: z
-        .strictObject({
+        .object({
         email: z
             .string()
             .email()
@@ -78,20 +78,16 @@ exports.registerSchema = z.strictObject({
         gender: z.enum(["male", "female"], {
             message: "Gender must be either 'male' or 'female'",
         }),
-        role: z.enum(["admin", "user"], {
-            message: "Role must be either 'admin' or 'user'",
-        }),
-        provider: z.enum(["google", "facebook", "system"], {
-            message: "Provider must be either 'google', 'facebook', or 'system'",
-        }),
+        role: z.enum(["admin", "user"]).default("user"),
+        provider: z.enum(["google", "facebook", "system"]).default("system"),
     })
         .refine((data) => data.password === data.confirmPassword, {
         message: "Passwords do not match",
         path: ["confirmPassword"],
     }),
 });
-exports.verifyOtpSchema = z.strictObject({
-    body: z.strictObject({
+exports.verifyOtpSchema = z.object({
+    body: z.object({
         email: z
             .string()
             .email()
@@ -102,8 +98,8 @@ exports.verifyOtpSchema = z.strictObject({
             .min(6, { message: "OTP must be at least 6 characters long" }),
     }),
 });
-exports.resendOtpSchema = z.strictObject({
-    body: z.strictObject({
+exports.resendOtpSchema = z.object({
+    body: z.object({
         email: z
             .string()
             .email()
@@ -111,8 +107,8 @@ exports.resendOtpSchema = z.strictObject({
             .transform((val) => val.toLowerCase()),
     }),
 });
-exports.forgetPasswordSchema = z.strictObject({
-    body: z.strictObject({
+exports.forgetPasswordSchema = z.object({
+    body: z.object({
         email: z
             .string()
             .email()
@@ -120,8 +116,8 @@ exports.forgetPasswordSchema = z.strictObject({
             .transform((val) => val.toLowerCase()),
     }),
 });
-exports.resetPasswordSchema = z.strictObject({
-    body: z.strictObject({
+exports.resetPasswordSchema = z.object({
+    body: z.object({
         email: z
             .string()
             .email()
@@ -138,8 +134,8 @@ exports.resetPasswordSchema = z.strictObject({
         }),
     }),
 });
-exports.changePasswordSchema = z.strictObject({
-    body: z.strictObject({
+exports.changePasswordSchema = z.object({
+    body: z.object({
         email: z
             .string()
             .email()
@@ -159,8 +155,8 @@ exports.changePasswordSchema = z.strictObject({
         }),
     }),
 });
-exports.refreshTokenSchema = z.strictObject({
-    body: z.strictObject({
+exports.refreshTokenSchema = z.object({
+    body: z.object({
         refreshToken: z
             .string({
             message: "Refresh token is required",
@@ -168,8 +164,8 @@ exports.refreshTokenSchema = z.strictObject({
             .min(1, { message: "Refresh token must be at least 1 character long" }),
     }),
 });
-exports.logoutSchema = z.strictObject({
-    body: z.strictObject({
+exports.logoutSchema = z.object({
+    body: z.object({
         refreshToken: z
             .string({
             message: "Refresh token is required",

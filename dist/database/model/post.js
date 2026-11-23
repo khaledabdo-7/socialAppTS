@@ -20,8 +20,8 @@ const PostSchema = new mongoose_1.default.Schema({
         ref: "User",
     },
     tags: {
-        type: [mongoose_1.default.Schema.Types.ObjectId],
-        ref: "User",
+        type: [String],
+        default: [],
     },
     allowComments: {
         type: Boolean,

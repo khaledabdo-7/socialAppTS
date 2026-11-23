@@ -9,15 +9,17 @@ export interface IPost {
   content: string;
   comments?: mongoose.Types.ObjectId[];
   ownerId: mongoose.Types.ObjectId;
-  tags?: mongoose.Types.ObjectId[];
+  tags?: string[];
   allowComments: boolean;
-  imageUrl?: string[];
+  imageUrl?: string;
   reaction?: { userId: mongoose.Types.ObjectId; type: ReactType }[];
 }
 
 export interface AuthRequest extends Request {
   user?: {
     id: string;
+    role?: string;
+    email?: string;
   };
 }
 

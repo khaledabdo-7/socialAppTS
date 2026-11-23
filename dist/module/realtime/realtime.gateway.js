@@ -32,9 +32,10 @@ class RealtimeGateway {
             });
         });
         this.io.on("connection", async (socket) => {
-            const userId = socket.data.userId;
+            const userId = (socket.data.userId || "").toString();
             console.log(`[Socket.IO] Client connected: socketId=${socket.id}, userId=${userId}`);
-            socket.join(`user:${userId}`);
+            await socket.join(userId);
+            await socket.join(`user:${userId}`);
             try {
                 await this.redisService.saveUserSocket(userId, socket.id);
                 const activeSockets = await this.redisService.hasSockets(userId);

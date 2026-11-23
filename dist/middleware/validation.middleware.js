@@ -37,6 +37,9 @@ const validationMiddleware = (schema) => {
             }));
             throw new error_response_1.BadRequestError("Validation failed", issuesList);
         }
+        if (valResult.data?.body) {
+            req.body = valResult.data.body;
+        }
         next();
     };
 };

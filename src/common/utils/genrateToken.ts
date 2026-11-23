@@ -2,9 +2,10 @@ import jwt from "jsonwebtoken";
 import { v4 as uuidv4 } from "uuid";
 import { env } from "../../config/env.service";
 
-export const generateRefreshToken = (user: { _id: string; role: string }) => {
+export const generateRefreshToken = (user: { _id?: any; id?: any; role: string }) => {
+  const userId = (user._id || user.id || "").toString();
   const refreshToken = jwt.sign(
-    { id: user._id, role: user.role },
+    { id: userId, _id: userId, role: user.role },
     env.JWT_SECRET_REFRESH,
     {
       expiresIn: "7d",
@@ -14,12 +15,13 @@ export const generateRefreshToken = (user: { _id: string; role: string }) => {
   return refreshToken;
 };
 
-export const generateAccessToken = (user: { _id: string; role: string }) => {
+export const generateAccessToken = (user: { _id?: any; id?: any; role: string }) => {
+  const userId = (user._id || user.id || "").toString();
   const accessToken = jwt.sign(
-    { id: user._id, role: user.role },
+    { id: userId, _id: userId, role: user.role },
     env.JWT_SECRET_LOGIN,
     {
-      expiresIn: "1h",
+      expiresIn: "7d",
       jwtid: uuidv4(),
     },
   );

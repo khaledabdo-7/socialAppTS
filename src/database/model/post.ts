@@ -17,8 +17,8 @@ const PostSchema = new mongoose.Schema<IPost>(
       ref: "User",
     },
     tags: {
-      type: [mongoose.Schema.Types.ObjectId],
-      ref: "User",
+      type: [String],
+      default: [],
     },
     allowComments: {
       type: Boolean,

@@ -16,11 +16,15 @@ const graphQLAuthMiddleware = async (context) => {
     }
     const token = authHeader.split(" ")[1];
     const decodedToken = jsonwebtoken_1.default.verify(token, env_service_1.env.JWT_SECRET_LOGIN);
-    const isTokenBlacklisted = await redis_connection_1.redisClient.get(`blacklist:${decodedToken.id}`);
+    const userId = decodedToken.id || decodedToken._id;
+    if (!userId) {
+        throw new error_response_1.NotAuthorizedError("Not authorized");
+    }
+    const isTokenBlacklisted = await redis_connection_1.redisClient.get(`blacklist:${userId}`);
     if (isTokenBlacklisted) {
         throw new error_response_1.NotAuthorizedError("Not authorized");
     }
-    const user = await user_model_1.User.findById(decodedToken.id);
+    const user = await user_model_1.User.findById(userId);
     if (!user) {
         throw new error_response_1.NotAuthorizedError("Not authorized");
     }

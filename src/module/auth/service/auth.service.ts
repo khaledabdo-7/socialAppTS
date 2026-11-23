@@ -40,8 +40,14 @@ class AuthService {
     const accessToken = generateAccessToken(user);
     const refreshToken = generateRefreshToken(user);
 
+    const userObj = typeof (user as any).toObject === "function" ? (user as any).toObject() : { ...user };
+    userObj.avatar = userObj.avatar || userObj.avatarUrl || "";
+    userObj.avatarUrl = userObj.avatarUrl || userObj.avatar || "";
+    delete userObj.password;
+    delete userObj.otp;
+
     return {
-      user,
+      user: userObj,
       accessToken,
       refreshToken,
     };
@@ -151,9 +157,18 @@ class AuthService {
         env.JWT_SECRET_REFRESH,
       ) as jwt.JwtPayload;
 
-      const accessToken = generateAccessToken(
-        decodedToken as { _id: string; role: string },
-      );
+      const userId = (decodedToken as any).id || (decodedToken as any)._id;
+      const role = (decodedToken as any).role || "user";
+
+      if (!userId) {
+        throw new UnauthorizedError("Invalid token payload");
+      }
+
+      const accessToken = generateAccessToken({
+        id: userId,
+        _id: userId,
+        role,
+      });
       return accessToken;
     } catch (error) {
       throw new UnauthorizedError("Invalid refresh token");

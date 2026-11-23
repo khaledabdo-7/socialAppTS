@@ -2,25 +2,42 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.chatEvents = void 0;
 const error_response_1 = require("../../../common/response/error.response");
+const message_model_1 = require("../../../database/model/message.model");
+const mongoose_1 = require("mongoose");
 class ChatEvents {
     async handleSendMessage(socket, io, data, callback) {
         try {
             const senderId = socket.data.userId;
-            if (!data || !data.receiverId || !data.message?.trim()) {
+            const targetReceiverId = (data?.receiverId || data?.recipientId || "").toString();
+            if (!data || !targetReceiverId || !data.message?.trim()) {
                 throw new error_response_1.BadRequestError("receiverId and non-empty message are required");
             }
-            const messageData = {
-                senderId,
+            // 1. Save message permanently to MongoDB
+            const newMsg = new message_model_1.MessageModel({
+                senderId: new mongoose_1.Types.ObjectId(senderId),
+                receiverId: new mongoose_1.Types.ObjectId(targetReceiverId),
                 message: data.message.trim(),
-                timestamp: new Date(),
+                roomId: data.roomId,
+            });
+            const savedMessage = await newMsg.save();
+            const messageData = {
+                _id: savedMessage._id?.toString(),
+                senderId,
+                receiverId: targetReceiverId,
+                recipientId: targetReceiverId,
+                message: savedMessage.message,
+                timestamp: savedMessage.createdAt,
                 roomId: data.roomId,
             };
-            io.to(`user:${data.receiverId}`).emit("receiveMessage", messageData);
+            // 2. Deliver real-time message to receiver
+            io.to(`user:${targetReceiverId}`).to(targetReceiverId).emit("receiveMessage", messageData);
+            // If in a room, deliver to room members
             if (data.roomId) {
                 socket.to(data.roomId).emit("receiveMessage", messageData);
             }
+            // 3. Acknowledge sender with success & message data
             if (typeof callback === "function") {
-                callback({ success: true, data: messageData });
+                callback({ success: true, data: savedMessage });
             }
         }
         catch (error) {
@@ -42,10 +59,11 @@ class ChatEvents {
     async handleTyping(socket, io, data) {
         try {
             const senderId = socket.data.userId;
-            if (!data || !data.receiverId) {
+            const targetReceiverId = (data?.receiverId || data?.recipientId || "").toString();
+            if (!data || !targetReceiverId) {
                 return;
             }
-            io.to(`user:${data.receiverId}`).emit("userTyping", {
+            io.to(`user:${targetReceiverId}`).to(targetReceiverId).emit("userTyping", {
                 userId: senderId,
                 isTyping: Boolean(data.isTyping),
             });

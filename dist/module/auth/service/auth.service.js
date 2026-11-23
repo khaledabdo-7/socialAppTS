@@ -30,8 +30,13 @@ class AuthService {
         }
         const accessToken = (0, genrateToken_1.generateAccessToken)(user);
         const refreshToken = (0, genrateToken_1.generateRefreshToken)(user);
+        const userObj = typeof user.toObject === "function" ? user.toObject() : { ...user };
+        userObj.avatar = userObj.avatar || userObj.avatarUrl || "";
+        userObj.avatarUrl = userObj.avatarUrl || userObj.avatar || "";
+        delete userObj.password;
+        delete userObj.otp;
         return {
-            user,
+            user: userObj,
             accessToken,
             refreshToken,
         };
@@ -117,7 +122,16 @@ class AuthService {
     async refreshToken(refreshToken) {
         try {
             const decodedToken = jsonwebtoken_1.default.verify(refreshToken, env_service_1.env.JWT_SECRET_REFRESH);
-            const accessToken = (0, genrateToken_1.generateAccessToken)(decodedToken);
+            const userId = decodedToken.id || decodedToken._id;
+            const role = decodedToken.role || "user";
+            if (!userId) {
+                throw new error_response_1.UnauthorizedError("Invalid token payload");
+            }
+            const accessToken = (0, genrateToken_1.generateAccessToken)({
+                id: userId,
+                _id: userId,
+                role,
+            });
             return accessToken;
         }
         catch (error) {

@@ -24,11 +24,11 @@ class PostGQLResolver {
             console.log(context);
             await (0, graphQLAuth_middleware_1.graphQLAuthMiddleware)(context);
             let postData = await this.postService.getAllPosts(args.ownerId);
-            const customPostData = postData.map((post) => {
-                id: post.id;
-                title: post.title;
-                content: post.content;
-            });
+            const customPostData = postData.map((post) => ({
+                id: post.id || post._id,
+                title: post.title,
+                content: post.content,
+            }));
             return {
                 posts: customPostData,
             };

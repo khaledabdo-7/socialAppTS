@@ -1,7 +1,7 @@
 import * as z from "zod";
 
-export const loginSchema = z.strictObject({
-  body: z.strictObject({
+export const loginSchema = z.object({
+  body: z.object({
     email: z
       .string()
       .email()
@@ -20,9 +20,9 @@ export const loginSchema = z.strictObject({
   }),
 });
 
-export const registerSchema = z.strictObject({
+export const registerSchema = z.object({
   body: z
-    .strictObject({
+    .object({
       email: z
         .string()
         .email()
@@ -56,12 +56,8 @@ export const registerSchema = z.strictObject({
       gender: z.enum(["male", "female"], {
         message: "Gender must be either 'male' or 'female'",
       }),
-      role: z.enum(["admin", "user"], {
-        message: "Role must be either 'admin' or 'user'",
-      }),
-      provider: z.enum(["google", "facebook", "system"], {
-        message: "Provider must be either 'google', 'facebook', or 'system'",
-      }),
+      role: z.enum(["admin", "user"]).default("user"),
+      provider: z.enum(["google", "facebook", "system"]).default("system"),
     })
     .refine((data) => data.password === data.confirmPassword, {
       message: "Passwords do not match",
@@ -69,8 +65,8 @@ export const registerSchema = z.strictObject({
     }),
 });
 
-export const verifyOtpSchema = z.strictObject({
-  body: z.strictObject({
+export const verifyOtpSchema = z.object({
+  body: z.object({
     email: z
       .string()
       .email()
@@ -82,8 +78,8 @@ export const verifyOtpSchema = z.strictObject({
   }),
 });
 
-export const resendOtpSchema = z.strictObject({
-  body: z.strictObject({
+export const resendOtpSchema = z.object({
+  body: z.object({
     email: z
       .string()
       .email()
@@ -92,8 +88,8 @@ export const resendOtpSchema = z.strictObject({
   }),
 });
 
-export const forgetPasswordSchema = z.strictObject({
-  body: z.strictObject({
+export const forgetPasswordSchema = z.object({
+  body: z.object({
     email: z
       .string()
       .email()
@@ -102,8 +98,8 @@ export const forgetPasswordSchema = z.strictObject({
   }),
 });
 
-export const resetPasswordSchema = z.strictObject({
-  body: z.strictObject({
+export const resetPasswordSchema = z.object({
+  body: z.object({
     email: z
       .string()
       .email()
@@ -125,8 +121,8 @@ export const resetPasswordSchema = z.strictObject({
   }),
 });
 
-export const changePasswordSchema = z.strictObject({
-  body: z.strictObject({
+export const changePasswordSchema = z.object({
+  body: z.object({
     email: z
       .string()
       .email()
@@ -155,8 +151,8 @@ export const changePasswordSchema = z.strictObject({
   }),
 });
 
-export const refreshTokenSchema = z.strictObject({
-  body: z.strictObject({
+export const refreshTokenSchema = z.object({
+  body: z.object({
     refreshToken: z
       .string({
         message: "Refresh token is required",
@@ -165,8 +161,8 @@ export const refreshTokenSchema = z.strictObject({
   }),
 });
 
-export const logoutSchema = z.strictObject({
-  body: z.strictObject({
+export const logoutSchema = z.object({
+  body: z.object({
     refreshToken: z
       .string({
         message: "Refresh token is required",

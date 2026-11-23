@@ -6,6 +6,8 @@ import {
   MessageResponse,
 } from "../../realtime/realtime.interface";
 import { BadRequestError } from "../../../common/response/error.response";
+import { MessageModel } from "../../../database/model/message.model";
+import { Types } from "mongoose";
 
 class ChatEvents {
   public async handleSendMessage(
@@ -16,26 +18,42 @@ class ChatEvents {
   ): Promise<void> {
     try {
       const senderId = socket.data.userId;
+      const targetReceiverId = (data?.receiverId || (data as any)?.recipientId || "").toString();
 
-      if (!data || !data.receiverId || !data.message?.trim()) {
+      if (!data || !targetReceiverId || !data.message?.trim()) {
         throw new BadRequestError("receiverId and non-empty message are required");
       }
 
-      const messageData: MessageResponse = {
-        senderId,
+      // 1. Save message permanently to MongoDB
+      const newMsg = new MessageModel({
+        senderId: new Types.ObjectId(senderId),
+        receiverId: new Types.ObjectId(targetReceiverId),
         message: data.message.trim(),
-        timestamp: new Date(),
+        roomId: data.roomId,
+      });
+      const savedMessage = await newMsg.save();
+
+      const messageData: MessageResponse = {
+        _id: (savedMessage._id as any)?.toString(),
+        senderId,
+        receiverId: targetReceiverId,
+        recipientId: targetReceiverId,
+        message: savedMessage.message,
+        timestamp: savedMessage.createdAt,
         roomId: data.roomId,
       };
 
-      io.to(`user:${data.receiverId}`).emit("receiveMessage", messageData);
+      // 2. Deliver real-time message to receiver
+      io.to(`user:${targetReceiverId}`).to(targetReceiverId).emit("receiveMessage", messageData);
 
+      // If in a room, deliver to room members
       if (data.roomId) {
         socket.to(data.roomId).emit("receiveMessage", messageData);
       }
 
+      // 3. Acknowledge sender with success & message data
       if (typeof callback === "function") {
-        callback({ success: true, data: messageData });
+        callback({ success: true, data: savedMessage });
       }
     } catch (error: any) {
       console.error("[ChatEvents] Error in handleSendMessage:", error);
@@ -60,12 +78,13 @@ class ChatEvents {
   ): Promise<void> {
     try {
       const senderId = socket.data.userId;
+      const targetReceiverId = (data?.receiverId || (data as any)?.recipientId || "").toString();
 
-      if (!data || !data.receiverId) {
+      if (!data || !targetReceiverId) {
         return;
       }
 
-      io.to(`user:${data.receiverId}`).emit("userTyping", {
+      io.to(`user:${targetReceiverId}`).to(targetReceiverId).emit("userTyping", {
         userId: senderId,
         isTyping: Boolean(data.isTyping),
       });

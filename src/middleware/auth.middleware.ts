@@ -23,23 +23,36 @@ export const authMiddleware = (token?: string) => {
       }
 
       const decoded = jwt.verify(accessToken, env.JWT_SECRET_LOGIN) as {
-        id: string;
+        id?: string;
+        _id?: string;
       };
+      const userId = decoded.id || decoded._id;
+      if (!userId) {
+        throw new UnauthorizedError("Unauthorized");
+      }
       const isTokenBlacklisted = await redisClient.get(
-        `blacklist:${decoded.id}`,
+        `blacklist:${userId}`,
       );
       if (isTokenBlacklisted) {
         throw new UnauthorizedError("Unauthorized");
       }
-      const user = await User.findById(decoded.id);
+      const user = await User.findById(userId);
       if (!user) {
         throw new UnauthorizedError("Unauthorized");
       }
       (req as UserReq).user = user;
       next();
-    } catch (error) {
-      console.error("Error in authMiddleware:", error);
-      throw new BadRequestError("Something went wrong");
+    } catch (error: any) {
+      if (error instanceof UnauthorizedError) {
+        return next(error);
+      }
+      if (error?.name === "TokenExpiredError") {
+        return next(new UnauthorizedError("Token expired. Please login again."));
+      }
+      if (error?.name === "JsonWebTokenError") {
+        return next(new UnauthorizedError("Invalid authentication token"));
+      }
+      return next(new UnauthorizedError(error?.message || "Unauthorized"));
     }
   };
 };
@@ -47,16 +60,19 @@ export const authMiddleware = (token?: string) => {
 export const authorization = (allowedRoles: string[]) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const role = (req as any).user.role;
+      const role = (req as any).user?.role;
       if (!role) {
-        throw new UnauthorizedError("Please login First");
+        throw new UnauthorizedError("Please login first");
       }
       if (!allowedRoles.includes(role)) {
-        throw new UnauthorizedError("Unauthorized");
+        throw new UnauthorizedError("Forbidden: Insufficient permissions");
       }
       next();
-    } catch (error) {
-      throw new BadRequestError("Something went wrong");
+    } catch (error: any) {
+      if (error instanceof UnauthorizedError) {
+        return next(error);
+      }
+      return next(new UnauthorizedError(error?.message || "Forbidden"));
     }
   };
 };

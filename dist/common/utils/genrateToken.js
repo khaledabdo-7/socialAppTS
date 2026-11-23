@@ -8,7 +8,8 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const uuid_1 = require("uuid");
 const env_service_1 = require("../../config/env.service");
 const generateRefreshToken = (user) => {
-    const refreshToken = jsonwebtoken_1.default.sign({ id: user._id, role: user.role }, env_service_1.env.JWT_SECRET_REFRESH, {
+    const userId = (user._id || user.id || "").toString();
+    const refreshToken = jsonwebtoken_1.default.sign({ id: userId, _id: userId, role: user.role }, env_service_1.env.JWT_SECRET_REFRESH, {
         expiresIn: "7d",
         jwtid: (0, uuid_1.v4)(),
     });
@@ -16,8 +17,9 @@ const generateRefreshToken = (user) => {
 };
 exports.generateRefreshToken = generateRefreshToken;
 const generateAccessToken = (user) => {
-    const accessToken = jsonwebtoken_1.default.sign({ id: user._id, role: user.role }, env_service_1.env.JWT_SECRET_LOGIN, {
-        expiresIn: "1h",
+    const userId = (user._id || user.id || "").toString();
+    const accessToken = jsonwebtoken_1.default.sign({ id: userId, _id: userId, role: user.role }, env_service_1.env.JWT_SECRET_LOGIN, {
+        expiresIn: "7d",
         jwtid: (0, uuid_1.v4)(),
     });
     return accessToken;
