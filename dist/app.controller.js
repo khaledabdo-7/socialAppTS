@@ -50,6 +50,9 @@ const bootstrap = async () => {
         }
     }
     app.use("/uploads", express_1.default.static(uploadsDir));
+    app.get("/health", (req, res) => {
+        res.status(200).json({ status: "ok", timestamp: new Date().toISOString() });
+    });
     app.all("/graphql", (0, express_2.createHandler)({ schema: schema_gql_1.schema, context: (req) => ({ req }) }));
     app.use("/auth", auth_controller_1.default);
     app.use("/post", post_controller_1.default);
@@ -60,7 +63,7 @@ const bootstrap = async () => {
     app.use("/notification", notification_controller_1.default);
     app.use("/upload", upload_controller_1.default);
     app.use(globalErrorHandler_middleware_1.globalErrorHandler);
-    const httpServer = app.listen(port, () => {
+    const httpServer = app.listen(port, "0.0.0.0", () => {
         console.log(`Server is running in port ${port}`);
     });
     realtime_gateway_1.realtimeGateway.initializer(httpServer);

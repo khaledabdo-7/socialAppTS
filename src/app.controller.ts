@@ -53,6 +53,10 @@ export const bootstrap = async () => {
   }
   app.use("/uploads", express.static(uploadsDir));
 
+  app.get("/health", (req, res) => {
+    res.status(200).json({ status: "ok", timestamp: new Date().toISOString() });
+  });
+
   app.all(
     "/graphql",
     createHandler({ schema: schema, context: (req) => ({ req }) }),
@@ -67,7 +71,7 @@ export const bootstrap = async () => {
   app.use("/upload", uploadRouter);
   app.use(globalErrorHandler);
 
-  const httpServer = app.listen(port, () => {
+  const httpServer = app.listen(port, "0.0.0.0", () => {
     console.log(`Server is running in port ${port}`);
   });
 

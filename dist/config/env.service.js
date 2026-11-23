@@ -6,8 +6,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.env = void 0;
 const dotenv_1 = require("dotenv");
 const node_path_1 = __importDefault(require("node:path"));
-(0, dotenv_1.config)({ path: node_path_1.default.resolve(`./.env.${process.env.NODE_ENV}`) });
-const PORT = Number(process.env.PORT);
+if (process.env.NODE_ENV) {
+    (0, dotenv_1.config)({ path: node_path_1.default.resolve(`./.env.${process.env.NODE_ENV}`) });
+}
+(0, dotenv_1.config)(); // fallback to default .env if present
+const PORT = Number(process.env.PORT) || 3007;
 const mongoURL = process.env.DB_URL;
 const SALT = process.env.SALT;
 const EMAIL_PASS = process.env.EMAIL_PASS;

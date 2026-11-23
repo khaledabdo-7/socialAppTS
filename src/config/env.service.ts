@@ -1,8 +1,12 @@
 import dotenv, { config } from "dotenv";
 import path from "node:path";
 
-config({ path: path.resolve(`./.env.${process.env.NODE_ENV}`) });
-const PORT = Number(process.env.PORT);
+if (process.env.NODE_ENV) {
+  config({ path: path.resolve(`./.env.${process.env.NODE_ENV}`) });
+}
+config(); // fallback to default .env if present
+
+const PORT = Number(process.env.PORT) || 3007;
 const mongoURL = process.env.DB_URL;
 const SALT = process.env.SALT;
 const EMAIL_PASS = process.env.EMAIL_PASS;

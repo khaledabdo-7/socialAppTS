@@ -5,8 +5,10 @@
   "main": "index.js",
   "type": "commonjs",
   "scripts": {
+    "build": "tsc",
+    "start": "node dist/main.js",
     "start:dev": "cross-env NODE_ENV=dev concurrently \"tsc -watch\" \"node --watch ./dist/main.js\"",
-    "start:prod": "cross-env NODE_ENV=prod concurrently \"tsc -watch\" \"node --watch ./dist/main.js\"",
+    "start:prod": "node dist/main.js",
     "dev:frontend": "npm run dev --prefix frontend",
     "build:frontend": "npm run build --prefix frontend",
     "dev:all": "concurrently \"npm run start:dev\" \"npm run dev:frontend\"",
